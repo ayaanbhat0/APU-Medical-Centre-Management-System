@@ -1,0 +1,219 @@
+package Staff;
+
+import javax.swing.*;
+import java.util.*;
+import LoginPage.loginSystem;
+import java.io.File;
+import java.io.FileNotFoundException;
+
+public class StaffPaymentPage extends JFrame{
+    private JComboBox comboBooking;
+    private JRadioButton rbCash, rbCard, rbEWallet, rbOnline;
+    private JButton btnGenerate, btnBack;
+    private JLabel lblTotal, txtStaffName, txtInvoiceId, txtCustomer;
+    
+    private String invoiceId, customerName, staffName, paymentMethod, bookingID, total;
+    private static String currentUser;
+    private List<StaffAppointment> appointment;
+
+    private final StaffBARepositority apptRepo = new StaffBARepositority("txtfiles/appointments.txt");
+    private final StaffPaymentRepository payRepo = new StaffPaymentRepository("txtfiles/payment.txt");
+    private loginSystem login = new loginSystem();
+
+    public StaffPaymentPage(String currentName) {
+        this.currentUser = currentName;
+        
+        setTitle("Staff - Payment Page");
+        setSize(700, 350);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setLayout(null);
+        
+        // Booking ID
+        JLabel lblBooking = new JLabel("Booking ID:");
+        lblBooking.setBounds(20, 30, 120, 25);
+        add(lblBooking);
+        comboBooking = new JComboBox();
+        appointment = apptRepo.getAllData();
+        for (StaffAppointment a : appointment){
+            comboBooking.addItem(a.getBookingId());
+        }
+        comboBooking.setBounds(150, 30, 100, 25);
+        add(comboBooking);
+        
+        // Customer Name
+        JLabel lblCustomer = new JLabel("Customer Name:");
+        lblCustomer.setBounds(20, 70, 120, 25);
+        add(lblCustomer);
+        txtCustomer = new JLabel();
+        txtCustomer.setBounds(150, 70, 200, 25);
+        add(txtCustomer);
+
+        // Payment Methods
+        JLabel lblPayment = new JLabel("Payment Method:");
+        lblPayment.setBounds(20, 100, 120, 25);
+        add(lblPayment);
+
+        rbCash = new JRadioButton("Cash");
+        rbCard = new JRadioButton("Credit/Debit Card");
+        rbEWallet = new JRadioButton("eWallet");
+        rbOnline = new JRadioButton("Online Banking");
+
+        ButtonGroup paymentGroup = new ButtonGroup();
+        paymentGroup.add(rbCash);
+        paymentGroup.add(rbCard);
+        paymentGroup.add(rbEWallet);
+        paymentGroup.add(rbOnline);
+
+        rbCash.setBounds(150, 100, 150, 25);
+        rbCard.setBounds(150, 130, 150, 25);
+        rbEWallet.setBounds(150, 160, 150, 25);
+        rbOnline.setBounds(150, 190, 150, 25);
+
+        add(rbCash); add(rbCard); add(rbEWallet); add(rbOnline);
+        
+        // Invoice ID
+        JLabel lblInvoice = new JLabel("Invoice ID:");
+        lblInvoice.setBounds(20, 230, 120, 25);
+        add(lblInvoice);
+        txtInvoiceId = new JLabel(payRepo.generateNextID());
+        txtInvoiceId.setBounds(150, 230, 150, 25);
+        add(txtInvoiceId);
+
+        // Staff Name
+        JLabel lblStaff = new JLabel("Staff Name:");
+        lblStaff.setBounds(20, 270, 120, 25);
+        add(lblStaff);
+        txtStaffName = new JLabel(currentUser);
+        txtStaffName.setBounds(150, 270, 200, 25);
+        add(txtStaffName);
+
+        // Total Price
+        lblTotal = new JLabel("Total Price   : RM " + loadTotalPrice());
+        lblTotal.setBounds(450, 30, 200, 30);
+        add(lblTotal);
+
+        // Buttons
+        btnGenerate = new JButton("Generate Receipt");
+        btnGenerate.setBounds(450, 100, 150, 30);
+        add(btnGenerate);
+
+        btnBack = new JButton("Back");
+        btnBack.setBounds(450, 150, 100, 30);
+        add(btnBack);
+        
+        loadTotalPrice();
+        loadCustomerName();
+
+        // Back to Homepage action
+        btnBack.addActionListener(e -> {
+            new StaffPage(currentUser).setVisible(true);
+            dispose();
+        });
+
+        // Save payment
+        btnGenerate.addActionListener(e -> {
+            savePayment();
+            generateReceipt();
+        });
+        
+        comboBooking.addActionListener(e -> {
+            lblTotal.setText("Total Price   : RM " + loadTotalPrice());
+            loadCustomerName();
+        });
+    }
+
+    private String loadTotalPrice() {
+        total = "0.00";
+        try (Scanner sc = new Scanner(new File("txtfiles/DoctorChargesAndFeedback.txt"))){
+            while (sc.hasNextLine()){
+                String line = sc.nextLine().trim();
+                if(!line.isEmpty()){
+                    String [] parts = line.split(",");
+                    if (parts[0].equals(comboBooking.getSelectedItem())){
+                        total = parts[4];
+                    }
+                }
+            }
+        }catch (FileNotFoundException ex) {
+            JOptionPane.showMessageDialog(this, "DoctorChargesAndFeedback.txt not found!");
+        }
+        return total;
+    }
+    
+    private void loadCustomerName(){
+        customerName = "xxx";
+        try (Scanner sc = new Scanner(new File("txtfiles/DoctorChargesAndFeedback.txt"))){
+            while (sc.hasNextLine()){
+                String line = sc.nextLine().trim();
+                if(!line.isEmpty()){
+                    String [] parts = line.split(",");
+                    if (parts[0].equals(comboBooking.getSelectedItem())){
+                        customerName = parts[2];
+                    }
+                }
+            }
+        }catch (FileNotFoundException ex) {
+            JOptionPane.showMessageDialog(this, "DoctorChargesAndFeedback.txt not found!");
+        }
+        txtCustomer.setText(customerName);
+    }
+
+    private void savePayment() {
+        invoiceId = txtInvoiceId.getText();
+        bookingID = (String) comboBooking.getSelectedItem();
+        customerName = txtCustomer.getText();
+        staffName = txtStaffName.getText();
+        total = loadTotalPrice();
+        paymentMethod = getPaymentMethod();
+
+        if (customerName.isEmpty() || staffName.isEmpty() || paymentMethod.isEmpty() || 
+            total.isEmpty() || bookingID.isEmpty()) {
+            return;
+        }
+
+        StaffPayment newPayment = new StaffPayment(
+            invoiceId, bookingID, customerName, paymentMethod, staffName, total
+        );
+
+        payRepo.addPayment(newPayment);
+        JOptionPane.showMessageDialog(this, "File Saved");
+    }
+    
+    private void generateReceipt(){
+        customerName = (String) txtCustomer.getText();
+        staffName = txtStaffName.getText();
+        paymentMethod = getPaymentMethod();
+        total = loadTotalPrice();
+        invoiceId = txtInvoiceId.getText();
+
+        if (customerName.isEmpty() || staffName.isEmpty() || paymentMethod.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please select payment method!");
+            return;
+        }
+        
+        String content = "=========== RECEIPT ===========\n"
+                       +"                  APU Medical Centrel\n"
+                       +"INVOICE ID :  " + invoiceId + "\n"
+                       +"Customer   :  " + customerName + "\n"
+                       +"Payment Method:  " + paymentMethod +"\n"
+                       +"Total Price:  RM" + total;
+
+        JOptionPane.showMessageDialog(null, content);
+
+        txtInvoiceId.setText(payRepo.generateNextID());
+    }
+    
+    private String getPaymentMethod(){
+        paymentMethod = "";
+
+        if (rbCash.isSelected()) paymentMethod = "Cash";
+        else if (rbCard.isSelected()) paymentMethod = "Credit/Debit Card";
+        else if (rbEWallet.isSelected()) paymentMethod = "eWallet";
+        else if (rbOnline.isSelected()) paymentMethod = "Online Banking";
+        return paymentMethod;
+    }
+    
+    public static void main(String[] args) {
+        new StaffPaymentPage(currentUser).setVisible(true);
+    }
+}

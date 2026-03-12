@@ -1,0 +1,214 @@
+package Staff;
+
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.event.*;
+
+public class StaffManageCustomerPage extends JFrame {
+    private JTable table;
+    private DefaultTableModel model;
+    private JTextField txtName, txtAge, txtGender, txtAddress, txtEmail, txtPassword, txtPhone;
+    private JComboBox comboGender;
+    private StaffMCPRepository repo;
+    private StaffCP CustomerProfile;
+    
+    private static String id;
+    private String Name, password, gender, email, phone, currentUser;
+    private int age;
+
+    public StaffManageCustomerPage(String name) {
+        this.currentUser = name;
+        //Page
+        setTitle("Staff - Manage Customer Profile Page");
+        setSize(1000,600);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setLayout(null);
+        
+        //Title
+        JLabel lblTitle = new JLabel("Manage Customer Profile");
+        lblTitle.setBounds(20, 20, 200, 30);
+        add(lblTitle);
+        
+        //Display Table
+        String[] columns = {"ID","Full Name","Password","Gender","Email","Phone","Age"};
+        model = new DefaultTableModel(columns, 0);
+        table = new JTable(model);
+        JScrollPane scrollPane = new JScrollPane(table);
+        scrollPane.setBounds(20, 50, 950, 200);
+        add(scrollPane);
+        
+        //Input Data
+        JLabel lblName = new JLabel("Name:");
+        lblName.setBounds(20, 300, 80, 25);
+        add(lblName);
+        txtName = new JTextField();
+        txtName.setBounds(100, 300, 100, 25);
+        add(txtName);
+        
+        JLabel lblPassword = new JLabel("Password:");
+        lblPassword.setBounds(20, 335, 80, 25);
+        add(lblPassword);
+        txtPassword = new JTextField();
+        txtPassword.setBounds(100, 335, 50, 25);
+        add(txtPassword);
+
+        JLabel lblGender = new JLabel("Gender:");
+        lblGender.setBounds(20, 370, 80, 25);
+        add(lblGender);
+        comboGender = new JComboBox<>(new Object[]{"Male","Female"});
+        comboGender.setBounds(100, 370, 50, 25);
+        add(comboGender);
+
+        JLabel lblEmail = new JLabel("Email:");
+        lblEmail.setBounds(230, 300, 80, 25);
+        add(lblEmail);
+        txtEmail = new JTextField();
+        txtEmail.setBounds(310, 300, 200, 25);
+        add(txtEmail);
+
+        JLabel lblPhone = new JLabel("Phone:");
+        lblPhone.setBounds(230, 335, 80, 25);
+        add(lblPhone);
+        txtPhone = new JTextField();
+        txtPhone.setBounds(310, 335, 100, 25);
+        add(txtPhone);
+        
+        JLabel lblAge = new JLabel("Age:");
+        lblAge.setBounds(230, 370, 80, 25);
+        add(lblAge);
+        txtAge = new JTextField();
+        txtAge.setBounds(310, 370, 50, 25);
+        add(txtAge);
+
+        //Button
+        JButton btnCreate = new JButton("Create");
+        btnCreate.setBounds(300, 430, 120, 30);
+        add(btnCreate);
+
+        JButton btnUpdate = new JButton("Update");
+        btnUpdate.setBounds(460, 430, 120, 30);
+        add(btnUpdate);
+
+        JButton btnDelete = new JButton("Delete");
+        btnDelete.setBounds(620, 430, 120, 30);
+        add(btnDelete);
+
+        JButton btnExit = new JButton("Exit");
+        btnExit.setBounds(850, 500, 120, 30);
+        add(btnExit);
+        
+        repo = new StaffMCPRepository("txtfiles/customer.txt");
+
+        loadTable();
+
+        //Button Actions
+        btnCreate.addActionListener(e -> {
+            try {
+                repo.addCustomer(loadFieldData());
+
+                loadTable();
+                JOptionPane.showMessageDialog(this, "Customer added!");
+                clearForm();
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
+            }
+        });
+
+        btnUpdate.addActionListener(e -> {
+            int row = table.getSelectedRow();
+            if (row >= 0) {
+                try {
+                    id = repo.generateNextID();
+                    Name = txtName.getText().trim();
+                    password = txtPassword.getText().trim();
+                    gender = (String) comboGender.getSelectedItem();
+                    email = txtEmail.getText().trim();
+                    phone = txtPhone.getText().trim();
+                    age = Integer.parseInt(txtAge.getText().trim());
+                    
+                    repo.updateCustomer(row, loadFieldData());
+
+                    model.setValueAt(Name, row, 1);
+                    model.setValueAt(password, row, 2);
+                    model.setValueAt(gender, row, 3);
+                    model.setValueAt(email, row, 4);
+                    model.setValueAt(phone, row, 5);
+                    model.setValueAt(age,row,6);
+
+                    JOptionPane.showMessageDialog(this, "Customer updated!");
+                    clearForm();
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Select a row first!");
+            }
+        });
+
+        btnDelete.addActionListener(e -> {
+            int row = table.getSelectedRow();
+            if (row >= 0) {
+                repo.deleteCustomer(row);
+                model.removeRow(row);
+                JOptionPane.showMessageDialog(this, "Customer deleted!");
+                clearForm();
+            } else {
+                JOptionPane.showMessageDialog(this, "Select a row first!");
+            }
+        });
+        
+        btnExit.addActionListener(e -> {
+            new StaffPage(currentUser).setVisible(true);
+            this.dispose();
+        });
+        
+        
+        table.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int row = table.getSelectedRow();
+                if (row >= 0) {
+                    txtName.setText((String) model.getValueAt(row, 1));
+                    txtPassword.setText(model.getValueAt(row, 2).toString());
+                    comboGender.setSelectedItem(model.getValueAt(row, 3));
+                    txtEmail.setText((String) model.getValueAt(row, 4));
+                    txtPhone.setText((String) model.getValueAt(row, 5));
+                    txtAge.setText((String) model.getValueAt(row, 6).toString());
+                }
+            }
+        });
+    }
+    
+    private StaffCP loadFieldData(){
+        id = repo.generateNextID();
+        Name = txtName.getText().trim();
+        password = txtPassword.getText().trim();
+        gender = (String) comboGender.getSelectedItem();
+        email = txtEmail.getText().trim();
+        phone = txtPhone.getText().trim();
+        age = Integer.parseInt(txtAge.getText().trim());
+
+        CustomerProfile = new StaffCP(id, Name, password, gender, email, phone, age);
+        return CustomerProfile;
+    } 
+
+    private void loadTable() {
+        model.setRowCount(0); 
+        for (StaffCP c : repo.getAllData()) {
+            model.addRow(new Object[]{
+                c.GetID(), c.GetName(), c.GetPassword(), c.GetGender(),
+                c.GetEmail(), c.GetPhone(), c.GetAge()
+            });
+        }
+    }
+
+    private void clearForm() {
+        txtName.setText("");
+        txtAge.setText("");
+        comboGender.setSelectedIndex(0);
+        txtEmail.setText("");
+        txtPassword.setText("");
+        txtPhone.setText("");
+    }
+}
+

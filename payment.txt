@@ -1,0 +1,66 @@
+package Staff;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+public class StaffPaymentRepository implements StaffRepositoryInterface {
+    private List<StaffPayment> payment;
+    private String fileName;
+    
+    public StaffPaymentRepository(String f){
+        this.fileName = f;
+        this.payment = loadFromFile();
+    }
+    
+    @Override
+    public String generateNextID() {
+        String lastId = "INV0000";
+        try (Scanner sc = new Scanner(new File(fileName))) {
+            while (sc.hasNextLine()) {
+                String line = sc.nextLine().trim();
+                if (!line.isEmpty()) {
+                    lastId = line.split(",")[0];
+                }
+            }
+        } catch (FileNotFoundException e) {}
+
+        int num = Integer.parseInt(lastId.substring(3)) + 1;
+        return "INV" + String.format("%04d", num);
+    }
+    
+    public void saveToFile(List<StaffPayment> payment) {
+        try (PrintWriter pw = new PrintWriter(new FileWriter(fileName))) {
+            for (StaffPayment p : payment) {
+                pw.println(p.toFileString());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public List<StaffPayment> loadFromFile() {
+        payment = new ArrayList<>();
+        try (Scanner sc = new Scanner(new File(fileName))) {
+            while (sc.hasNextLine()) {
+                String line = sc.nextLine().trim();
+                if (!line.isEmpty()) {
+                    payment.add(StaffPayment.fromFileString(line));
+                }
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("No file found, start empty.");
+        }
+        return payment;
+    }
+    
+    public void addPayment(StaffPayment p){
+        payment.add(p);
+        saveToFile(payment);
+    }
+}

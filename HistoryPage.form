@@ -1,0 +1,228 @@
+package Doctor;
+
+import java.io.File;
+import javax.swing.JOptionPane;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+
+public class ChargesAndFeedbackPage extends Page {
+
+    
+    public ChargesAndFeedbackPage() {
+        initComponents();
+        loadPatients();
+    }    
+    
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        jLabel1 = new javax.swing.JLabel();
+        jButton1 = new javax.swing.JButton();
+        btnSave = new javax.swing.JButton();
+        jLabel2 = new javax.swing.JLabel();
+        txtCharges = new javax.swing.JTextField();
+        jLabel3 = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        txtFeedback = new javax.swing.JTextArea();
+        cmbPatient = new javax.swing.JComboBox<>();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        jLabel1.setText("Charges And Feedback");
+        jLabel1.setName("lblChargesAndFeedback"); // NOI18N
+
+        jButton1.setText("Back");
+        jButton1.setName("btnBack"); // NOI18N
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
+        btnSave.setText("Save");
+        btnSave.setName("btnSave"); // NOI18N
+        btnSave.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSaveActionPerformed(evt);
+            }
+        });
+
+        jLabel2.setText("Enter Charges");
+        jLabel2.setName("lblCharges"); // NOI18N
+
+        txtCharges.setName("txtCharges"); // NOI18N
+
+        jLabel3.setText("Enter Feedback");
+        jLabel3.setName("lblFeedback"); // NOI18N
+
+        txtFeedback.setColumns(20);
+        txtFeedback.setRows(5);
+        txtFeedback.setName("txtFeedback"); // NOI18N
+        jScrollPane1.setViewportView(txtFeedback);
+
+        cmbPatient.setName("cmbPatient"); // NOI18N
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(43, 43, 43)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel1)
+                    .addComponent(cmbPatient, javax.swing.GroupLayout.PREFERRED_SIZE, 575, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addGroup(layout.createSequentialGroup()
+                            .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnSave, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(layout.createSequentialGroup()
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(jLabel2)
+                                .addComponent(jLabel3))
+                            .addGap(124, 124, 124)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 369, Short.MAX_VALUE)
+                                .addComponent(txtCharges)))))
+                .addContainerGap(55, Short.MAX_VALUE))
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(23, 23, 23)
+                .addComponent(jLabel1)
+                .addGap(18, 18, 18)
+                .addComponent(cmbPatient, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(24, 24, 24)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel2)
+                    .addComponent(txtCharges, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(22, 22, 22)
+                        .addComponent(jLabel3))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 35, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnSave)
+                    .addComponent(jButton1))
+                .addGap(29, 29, 29))
+        );
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        new DoctorMainPage().openPage();
+        closePage();
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
+        String selectedPatient = (String) cmbPatient.getSelectedItem();
+        if (selectedPatient == null) {
+            JOptionPane.showMessageDialog(this, "Please select a patient.");
+            return;
+        }
+
+        // Now we should extract PatientID properly
+        // Assuming comboBox item looks like "B01 - C01 - John Doe (Flu) | RM 100 | Recovered well"
+        String[] splitParts = selectedPatient.split(" - ");
+        if (splitParts.length < 2) {
+            JOptionPane.showMessageDialog(this, "Invalid patient format!");
+            return;
+        }
+
+        String patientId = splitParts[1].trim();  // C01
+        String charges = txtCharges.getText().trim();
+        String feedback = txtFeedback.getText().trim();
+
+        if (charges.isEmpty() || feedback.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please enter charges and feedback.");
+            return;
+        }
+
+        File originalFile = new File("txtfiles/DoctorChargesAndFeedback.txt");
+        File tempFile = new File("txtfiles/DoctorChargesAndFeedback.tmp");
+
+        try (BufferedReader br = new BufferedReader(new FileReader(originalFile));
+             BufferedWriter bw = new BufferedWriter(new FileWriter(tempFile))) {
+
+            String line;
+            boolean updated = false;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts.length >= 4 && parts[1].equals(patientId)) {
+                    // Update charges + feedback
+                    line = parts[0] + "," + parts[1] + "," + parts[2] + "," + parts[3] + "," 
+                           + charges + "," + feedback.replace(",", ";");
+                    updated = true;
+                }
+                bw.write(line);
+                bw.newLine();
+            }
+
+            if (!updated) {
+                JOptionPane.showMessageDialog(this, "Patient not found in file. No new entry added.");
+            }
+
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this, "Error saving data: " + e.getMessage());
+            return;
+        }
+
+        // Replace old file with updated one
+        if (!originalFile.delete() || !tempFile.renameTo(originalFile)) {
+            JOptionPane.showMessageDialog(this, "Error updating file!");
+        } else {
+            JOptionPane.showMessageDialog(this, "Saved successfully!");
+            txtCharges.setText("");
+            txtFeedback.setText("");
+            loadPatients(); // Refresh combo box
+        }
+    }//GEN-LAST:event_btnSaveActionPerformed
+
+    private void loadPatients() {
+        cmbPatient.removeAllItems(); // clear existing items
+        try (BufferedReader br = new BufferedReader(new FileReader("txtfiles/DoctorChargesAndFeedback.txt"))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts.length >= 4) {
+                    // Show BookingID + PatientID + Name + Treatment
+                    String item = parts[0] + " - " + parts[1] + " - " + parts[2] + " (" + parts[3] + ")";
+
+                    // If charges and feedback exist, add them too
+                    if (parts.length >= 6) {
+                        item += " | RM " + parts[4] + " | " + parts[5];
+                    }
+                    cmbPatient.addItem(item);
+                }
+            }
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this, "Error loading patients!");
+        }
+    }
+    
+    public static void main(String args[]) {
+        java.awt.EventQueue.invokeLater(() -> new ChargesAndFeedbackPage().setVisible(true));
+    }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnSave;
+    private javax.swing.JComboBox<String> cmbPatient;
+    private javax.swing.JButton jButton1;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTextField txtCharges;
+    private javax.swing.JTextArea txtFeedback;
+    // End of variables declaration//GEN-END:variables
+}

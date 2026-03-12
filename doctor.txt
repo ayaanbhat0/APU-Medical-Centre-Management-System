@@ -1,0 +1,79 @@
+package Staff;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.*;
+
+public class StaffMCPRepository implements StaffRepositoryInterface{
+    private List<StaffCP> customers;
+    private String fileName;
+    
+    public StaffMCPRepository(String fileName){
+        this.fileName = fileName;
+        this.customers = loadFromFile();
+    }
+
+    public void addCustomer(StaffCP c){
+        customers.add(c);
+        saveToFile(customers);
+    }
+
+    public void updateCustomer(int index, StaffCP c) {
+        customers.set(index, c);
+        saveToFile(customers);
+    }
+
+    public void deleteCustomer(int index) {
+        customers.remove(index);
+        saveToFile(customers);
+    }
+
+    public List<StaffCP> getAllData() {
+        return customers;
+    }
+
+    public void saveToFile(List<StaffCP> customers) {
+        try (PrintWriter pw = new PrintWriter(new FileWriter(fileName))) {
+            for (StaffCP c : customers) {
+                pw.println(c.toFileString());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public List<StaffCP> loadFromFile() {
+        customers = new ArrayList<>();
+        try (Scanner sc = new Scanner(new File(fileName))) {
+            while (sc.hasNextLine()) {
+                String line = sc.nextLine().trim();
+                if (!line.isEmpty()) {
+                    customers.add(StaffCP.fromFileString(line));
+                }
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("No file found, start empty.");
+        }
+        return customers;
+    }
+    
+    @Override
+    public String generateNextID() {
+        String lastId = "C00";
+        try (Scanner sc = new Scanner(new File(fileName))) {
+            while (sc.hasNextLine()) {
+                String line = sc.nextLine().trim();
+                if (!line.isEmpty()) {
+                    lastId = line.split(",")[0];
+                }
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("File not found, start from C01");
+        }
+        int num = Integer.parseInt(lastId.substring(1)) + 1;
+        return "C" + String.format("%02d", num);
+    }
+}

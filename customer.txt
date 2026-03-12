@@ -1,0 +1,47 @@
+package Staff;
+
+public class StaffCP {
+    private String id;
+    private String name;
+    private int age;
+    private String gender;
+    private String email;
+    private String password;
+    private String phone;
+
+    public StaffCP(String id, String name, String pass, String gender, String email, String phone, int age) {
+        this.id = id; 
+        this.name = name; 
+        this.age = age; 
+        this.gender = gender;
+        this.email = email; 
+        this.password = pass; 
+        this.phone = phone;
+    }
+    
+    public String GetID(){return id;}
+    public String GetName(){return name;}
+    public int GetAge(){return age;}
+    public String GetGender(){return gender;}
+    public String GetEmail(){return email;}
+    public String GetPassword(){return password;}
+    public String GetPhone(){return phone;}
+    
+    public String toFileString() {
+        return id + "," + name + "," + password + "," + gender + "," + email + "," + phone + "," + age;
+    }
+
+
+    public static StaffCP fromFileString(String line) {
+        String[] parts = line.split(",");
+        return new StaffCP(
+            parts[0],
+            parts[1],
+            parts[2],
+            parts[3],
+            parts[4],
+            parts[5],
+            Integer.parseInt(parts[6])
+        );
+    }
+}
