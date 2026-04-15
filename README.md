@@ -98,4 +98,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 - Developed as part of APU coursework
 - Built using Object-Oriented Programming principles
-- Designed with UML diagrams 
+- Designed with UML diagrams
