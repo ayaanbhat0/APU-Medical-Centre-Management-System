@@ -1,0 +1,28 @@
+package Customer;
+
+import java.io.*;
+
+public class CustomerAuthenticator extends Authenticator {
+    private String filePath = "txtfiles/CustomerProfile.txt";  // path to customer data file
+
+    @Override
+    public boolean login(String email, String password) {
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while((line = br.readLine()) != null) {
+                String[] parts = line.split("\\|");
+                if(parts.length >= 5) {
+                    String filePassword = parts[3].trim();
+                    String fileEmail = parts[4].trim();
+                    
+                    if(fileEmail.equalsIgnoreCase(email) && filePassword.equals(password)) {
+                        return true; // login success
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false; // login failed
+    }
+}

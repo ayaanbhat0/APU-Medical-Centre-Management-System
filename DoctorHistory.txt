@@ -1,0 +1,36 @@
+package Staff;
+
+public class StaffPayment {
+    private String invoiceId;
+    private String bookingId;
+    private String customer;
+    private String method;
+    private String staff;
+    private String totalAmount;
+    
+    public StaffPayment(String invoiceId , String bookingId , String customer , String method , String staff , String totalAmount){
+        this.invoiceId = invoiceId;
+        this.bookingId = bookingId;
+        this.customer = customer;
+        this.method = method;
+        this.staff = staff;
+        this.totalAmount = totalAmount;
+    }
+    
+    public String toFileString() {
+        return invoiceId + "," + bookingId + "," + customer + "," +
+               method + "," + staff + "," + totalAmount;
+    }
+    
+    public static StaffPayment fromFileString(String line) {
+        String[] parts = line.split(",");
+        return new StaffPayment(
+            parts[0],
+            parts[1],
+            parts[2],
+            parts[3],
+            parts[4],
+            parts[5]
+        );
+    }
+}

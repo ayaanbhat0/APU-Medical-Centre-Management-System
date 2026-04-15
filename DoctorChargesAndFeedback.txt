@@ -1,0 +1,62 @@
+package Staff;
+
+import javax.swing.*;
+import java.awt.event.*;
+import LoginPage.loginSystem;
+
+public class StaffPage extends JFrame implements ActionListener {
+    private final JButton btnCustomer, btnAppointment, btnPayment, btnOut;
+    private String currentname;
+
+    public StaffPage(String name) {
+        this.currentname = name;
+        
+        setTitle("Staff - Main Page");
+        setSize(500,300);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(null);
+
+        JLabel lblTitle = new JLabel("APU Medical Centre - Staff");
+        lblTitle.setBounds(170, 20, 200, 30);
+        add(lblTitle);
+
+        btnCustomer = new JButton("Manage Customer Profile");
+        btnAppointment = new JButton("Manage Appointment");
+        btnPayment = new JButton("Payment");
+        btnOut = new JButton("LogOut");
+
+
+        btnCustomer.setBounds(120, 70, 250, 40);
+        btnAppointment.setBounds(120, 120, 250, 40);
+        btnPayment.setBounds(120, 170, 250, 40);
+        btnOut.setBounds(390, 10, 80, 25);
+
+        add(btnCustomer);
+        add(btnAppointment);
+        add(btnPayment);
+        add(btnOut);
+
+        btnCustomer.addActionListener(this);
+        btnAppointment.addActionListener(this);
+        btnPayment.addActionListener(this);
+        btnOut.addActionListener(e -> {
+            loginSystem out = new loginSystem();
+            out.setVisible(true);
+            this.dispose();
+        });
+    }
+    
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if(e.getSource() == btnCustomer) {
+            new StaffManageCustomerPage(currentname).setVisible(true);
+             this.dispose();
+        } else if(e.getSource() == btnAppointment) {
+            new StaffAppointmentPage(currentname).setVisible(true);
+            this.dispose();
+        } else if(e.getSource() == btnPayment) {
+            new StaffPaymentPage(currentname).setVisible(true);
+            this.dispose();
+        }
+    }
+}
